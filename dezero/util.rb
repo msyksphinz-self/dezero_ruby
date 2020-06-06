@@ -1,10 +1,13 @@
 def _dot_var (v, verbose=false)
 
+#  puts "_dot_var = " + v.class.to_s
+
   name = v.name == nil ? '' : v.name
   if verbose and v.data != nil then
     if v.name != nil then
       name += ': '
     end
+    puts "v.shape = " + v.class.to_s
     name += v.shape.to_s + ' ' + v.dtype.to_s
   end
   return sprintf("%s [label=\"%s\", color=orange, style=filled]\n",
@@ -63,5 +66,51 @@ def plot_dot_graph(output, verbose=true, to_file='graph.png')
   f.write(dot_graph)
 
   cmd = "dot " + "tmp_graph.dot" + " -T png -o " + to_file
-  %x[#{cmd}]
+  result = %x[#{cmd}]
+  puts cmd
+  puts result
+end
+
+
+# =============================================================================
+# Utility functions for numpy (numpy magic)
+# =============================================================================
+def util_sum_to(x, shape)
+  ndim = PyCall::eval("len(#{shape})")
+  lead = x.ndim - ndim
+  lead_axis = PyCall.eval("tuple(range(#{lead}))")
+
+  axis = PyCall.eval("tuple([i + #{lead} for i, sx in enumerate(#{shape}) if sx == 1])")
+  y = x.sum(lead_axis + axis, keepdims:true)
+  if lead > 0 then
+    y = y.squeeze(lead_axis)
+  end
+  return y
+end
+
+
+def reshape_sum_backward(gy, x_shape, axis, keepdims)
+  ndim = PyCall::len(x_shape)
+  tupled_axis = axis
+  if axis == nil then
+    tupled_axis = nil
+  elsif not PyCall::eval("hasattr(#{axis}, 'len')") then
+    tupled_axis = [axis]
+  end
+
+  shape = []
+  if not (ndim == 0 or tupled_axis == nil or keepdims) then
+    actual_axis = tupled_axis.each{|a|
+      a >= 0 ? a : a + ndim
+    }
+    shape = [gy.shape]
+    for a in PyCall::eval("sorted(#{actual_axis})") do
+      shape.insert(a, 1)
+    end
+  else
+    shape = gy.shape
+  end
+
+  gy = gy.reshape(shape)  # reshape
+  return gy
 end

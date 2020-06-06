@@ -72,6 +72,7 @@ class Variable
       gys = f.outputs.map{|output| output.grad}
 
       if create_graph == true then
+        # puts "Backward called = " + f.class.name
         gxs = f.backward(*gys)
         if not gxs.is_a?(Array)
           gxs = [gxs]
@@ -118,6 +119,24 @@ class Variable
     return 'variable(' + @data.to_s + ')'
   end
 
+  def reshape(*shape)
+    if shape.size() == 1 then # and PyCall::isinstance(shape[0], (tuple, list)) then
+      shape = shape[0]
+    end
+    return Kernel.send(:reshape, self, shape)
+  end
+
+  def transpose()
+    return Kernel.send(:transpose, self)
+  end
+  def T()
+    return Kernel.send(:transpose, self)
+  end
+
+  def sum(axis=nil, keepdims=false)
+    return Kernel.send(:sum, self, axis, keepdims)
+  end
+
   def *(other)
     return mul(self, other)
   end
@@ -145,14 +164,14 @@ class Variable
   attr_accessor :data, :grad, :creator, :generation, :name
 end
 
-class Function
-  def as_variable(obj)
-    if obj.is_a?(Variable) then
-      return obj
-    end
-    return Variable.new(obj)
+def as_variable(obj)
+  if obj.is_a?(Variable) then
+    return obj
   end
+  return Variable.new(obj)
+end
 
+class Function
   def call(*inputs)
     inputs = inputs.map{|x| as_variable(x)}
 
@@ -183,3 +202,5 @@ class Function
 
   attr_accessor :inputs, :outputs, :generation
 end
+
+require './dezero/functions.rb'
