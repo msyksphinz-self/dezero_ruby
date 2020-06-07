@@ -176,6 +176,7 @@ class Function
     inputs = inputs.map{|x| as_variable(x)}
 
     xs = inputs.map{|x| x.data}
+    # puts "Forward called = " + self.class.name
     ys = forward(*xs)
     if not ys.is_a?(Array) then
       ys = [ys]

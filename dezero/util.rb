@@ -78,13 +78,18 @@ end
 def util_sum_to(x, shape)
   ndim = PyCall::eval("len(#{shape})")
   lead = x.ndim - ndim
-  lead_axis = PyCall.eval("tuple(range(#{lead}))")
+  # puts "lead = " + lead.to_s + ", shape = " + shape.to_s + ", " + ndim.to_s
+  lead_axis = PyCall::eval("tuple(range(#{lead}))")
 
-  axis = PyCall.eval("tuple([i + #{lead} for i, sx in enumerate(#{shape}) if sx == 1])")
+  axis = PyCall::eval("tuple([i + #{lead} for i, sx in enumerate(#{shape}) if sx == 1])")
   y = x.sum(lead_axis + axis, keepdims:true)
+  # puts "  Util_sum_to.shape = " + y.shape.to_s
   if lead > 0 then
+    np = Numpy
+    # puts "  y = " + y.class.to_s + ", " + lead_axis.to_s
     y = y.squeeze(lead_axis)
   end
+  # puts "  Util_sum_to.shape = " + y.shape.to_s
   return y
 end
 
