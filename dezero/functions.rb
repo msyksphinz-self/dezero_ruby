@@ -389,8 +389,9 @@ def matmul(x, w)
 end
 
 
-class Linear< Function
+class Linear < Function
   def forward(x, w, b)
+    puts "Linear.Forward"
     y = x.dot(w)
     if b != nil then
       y += b
@@ -398,6 +399,7 @@ class Linear< Function
     return y
   end
   def backward(gy)
+    puts "Linear.Backward"
     x = @inputs[0]
     w = @inputs[1]
     b = @inputs[2]
@@ -434,6 +436,7 @@ end
 
 class Sigmoid < Function
   def forward(x)
+    np = Numpy
     # xp = cuda.get_array_module(x)
     # y = 1 / (1 + xp.exp(-x))
     y = np.tanh(x * 0.5) * 0.5 + 0.5  # Better implementation

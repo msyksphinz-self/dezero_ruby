@@ -11,18 +11,6 @@ np = Numpy
 
 $enable_backprop = true
 
-
-# class Float
-#   def *(other)
-#     puts "type = " + other.class.to_s
-#     if other.is_a?(Variable) then
-#       y = other * self
-#       return y
-#     end
-#     return super(other)
-#   end
-# end
-
 def as_array(x)
   np = Numpy
 
@@ -202,6 +190,9 @@ class Function
   end
 
   attr_accessor :inputs, :outputs, :generation
+end
+
+class Parameter < Variable
 end
 
 require './dezero/functions.rb'

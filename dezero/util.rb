@@ -1,11 +1,11 @@
 def _dot_var (v, verbose=false)
 
-#  puts "_dot_var = " + v.class.to_s
+  # puts "v.name = " + v.name.to_s
 
   name = v.name == nil ? '' : v.name
   if verbose and v.data != nil then
     if v.name != nil then
-      name += ': '
+      name = name + ': '
     end
     puts "v.shape = " + v.class.to_s
     name += v.shape.to_s + ' ' + v.dtype.to_s
@@ -118,4 +118,10 @@ def reshape_sum_backward(gy, x_shape, axis, keepdims)
 
   gy = gy.reshape(shape)  # reshape
   return gy
+end
+
+def mean_squared_error(x0, x1)
+  np = Numpy
+  diff = x0 - x1
+  return sum(diff ** 2) / as_variable(np.array(diff.size))
 end
